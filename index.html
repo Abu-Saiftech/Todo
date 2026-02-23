@@ -3,131 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Salary Tracker</title>
+    <title>Mobile-Friendly Salary Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; padding: 20px; font-family: 'Segoe UI', sans-serif; }
-        .container { max-width: 1000px; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .priority-3 { border-left: 5px solid #dc3545 !important; } 
-        .priority-2 { border-left: 5px solid #ffc107 !important; } 
-        .priority-1 { border-left: 5px solid #198754 !important; }
-        .total-box { background: #0d6efd; color: white; border-radius: 10px; padding: 15px; text-align: center; }
-        .btn-delete { color: #dc3545; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-delete:hover { color: #a71d2a; transform: scale(1.1); }
+        body { background-color: #f8fafc; padding: 15px; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .container { max-width: 800px; }
+        
+        /* Dashboard Card */
+        .total-card {
+            background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+            text-align: center;
+        }
+
+        /* Form Styling */
+        .card-input { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
+        
+        /* Table / List Styling */
+        .commitment-row {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: 0.2s;
+        }
+        
+        /* Priority Colors */
+        .p-3 { border-right: 8px solid #dc3545; }
+        .p-2 { border-right: 8px solid #ffc107; }
+        .p-1 { border-right: 8px solid #198754; }
+
+        /* Responsive adjustments for Mobile */
+        @media (max-width: 576px) {
+            .commitment-row { flex-direction: column; align-items: flex-start; }
+            .delete-container { width: 100%; text-align: right; margin-top: 10px; border-top: 1px solid #eee; pt-2; }
+            .price-tag { font-size: 1.2rem; margin-top: 5px; }
+        }
+
+        .btn-add { border-radius: 10px; font-weight: 600; padding: 12px; }
+        .price-tag { color: #0d6efd; font-weight: bold; }
+        .btn-delete-icon { color: #dc3545; cursor: pointer; text-decoration: none; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-8">
-            <h1 class="fw-bold text-dark">Salary Commitments 💸</h1>
-            <p class="text-secondary">Track and manage your upcoming payments</p>
-        </div>
-        <div class="col-md-4">
-            <div class="total-box shadow">
-                <small>Total Amount</small>
-                <div id="totalDisplay" class="h2 mb-0">0.00 SAR</div>
-            </div>
-        </div>
+    <div class="total-card">
+        <span class="opacity-75">Next Salary Total Commitments</span>
+        <h1 id="totalDisplay" class="display-4 fw-bold mt-2">0.00 SAR</h1>
     </div>
-    
-    <div class="card p-4 mb-4">
+
+    <div class="card card-input mb-4">
         <div class="row g-3">
-            <div class="col-md-3">
-                <input type="text" id="itemDesc" class="form-control" placeholder="Item Name">
+            <div class="col-12 col-md-4">
+                <input type="text" id="itemDesc" class="form-control" placeholder="Item Name (e.g. Rent)">
             </div>
-            <div class="col-md-2">
+            <div class="col-6 col-md-3">
                 <input type="number" id="itemPrice" class="form-control" placeholder="Price">
             </div>
-            <div class="col-md-3">
-                <input type="text" id="itemNote" class="form-control" placeholder="Notes (Optional)">
-            </div>
-            <div class="col-md-2">
+            <div class="col-6 col-md-5">
                 <select id="itemPriority" class="form-select">
-                    <option value="1">P1 (Low)</option>
-                    <option value="2">P2 (Mid)</option>
-                    <option value="3">P3 (High)</option>
+                    <option value="1">Priority 1 (Low)</option>
+                    <option value="2" selected>Priority 2 (Mid)</option>
+                    <option value="3">Priority 3 (High)</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <button onclick="addItem()" class="btn btn-dark w-100 fw-bold">+ Add Item</button>
+            <div class="col-12">
+                <textarea id="itemNote" class="form-control" rows="1" placeholder="Add a note..."></textarea>
+            </div>
+            <div class="col-12">
+                <button id="addBtn" class="btn btn-primary w-100 btn-add shadow">Add to My List</button>
             </div>
         </div>
     </div>
 
-    <div class="card p-0 overflow-hidden shadow-sm">
-        <table class="table table-hover align-middle mb-0 text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th class="text-start ps-4">Description</th>
-                    <th>Price</th>
-                    <th>Notes</th>
-                    <th>Priority</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="itemsList"></tbody>
-        </table>
-    </div>
+    <div id="itemsList">
+        </div>
 </div>
 
-<script>
-    let totalAmount = 0;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    function addItem() {
+    const firebaseConfig = {
+        apiKey: "AIzaSyB1x8xLhaL6fCY8spvz1DGcKDqVFYim2GI",
+        authDomain: "salary-commitments.firebaseapp.com",
+        projectId: "salary-commitments",
+        storageBucket: "salary-commitments.firebasestorage.app",
+        messagingSenderId: "371328198096",
+        appId: "1:371328198096:web:8a6066fa9435594af585d5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const itemsRef = ref(db, 'commitments');
+
+    document.getElementById('addBtn').onclick = function() {
         const desc = document.getElementById('itemDesc').value;
-        const priceInput = document.getElementById('itemPrice');
-        const price = parseFloat(priceInput.value);
+        const price = parseFloat(document.getElementById('itemPrice').value);
         const note = document.getElementById('itemNote').value;
         const priority = document.getElementById('itemPriority').value;
 
-        if(!desc || isNaN(price)) {
-            alert("Please provide name and price.");
-            return;
+        if (desc && !isNaN(price)) {
+            push(itemsRef, { desc, price, note, priority });
+            document.getElementById('itemDesc').value = "";
+            document.getElementById('itemPrice').value = "";
+            document.getElementById('itemNote').value = "";
         }
+    };
 
-        const table = document.getElementById('itemsList');
-        const row = table.insertRow();
-        row.className = "priority-" + priority;
+    onValue(itemsRef, (snapshot) => {
+        const data = snapshot.val();
+        const listContainer = document.getElementById('itemsList');
+        listContainer.innerHTML = "";
+        let total = 0;
 
-        row.innerHTML = `
-            <td class="text-start ps-4 fw-bold">${desc}</td>
-            <td class="fw-bold">${price.toFixed(2)} SAR</td>
-            <td class="text-muted small">${note || '-'}</td>
-            <td>
-                <span class="badge ${priority == 3 ? 'bg-danger' : (priority == 2 ? 'bg-warning text-dark' : 'bg-success')}">
-                    L${priority}
-                </span>
-            </td>
-            <td><span class="btn-delete" onclick="removeItem(this, ${price})">✕ Delete</span></td>
-        `;
+        for (let id in data) {
+            const item = data[id];
+            total += item.price;
+            
+            const card = `
+                <div class="commitment-row p-${item.priority}">
+                    <div>
+                        <div class="fw-bold text-dark">${item.desc}</div>
+                        <div class="text-muted small">${item.note || 'No notes'}</div>
+                    </div>
+                    <div class="text-end delete-container">
+                        <div class="price-tag">${item.price.toFixed(2)} SAR</div>
+                        <a class="btn-delete-icon" onclick="deleteItem('${id}')">✕ Remove</a>
+                    </div>
+                </div>`;
+            listContainer.innerHTML += card;
+        }
+        document.getElementById('totalDisplay').innerText = total.toFixed(2) + " SAR";
+    });
 
-        // Update Total
-        totalAmount += price;
-        updateTotalDisplay();
-
-        // Clear Fields
-        document.getElementById('itemDesc').value = "";
-        priceInput.value = "";
-        document.getElementById('itemNote').value = "";
-    }
-
-    function removeItem(btn, amount) {
-        // Remove Row
-        const row = btn.parentNode.parentNode;
-        row.parentNode.removeChild(row);
-
-        // Update Total
-        totalAmount -= amount;
-        if(totalAmount < 0) totalAmount = 0; // Safeguard
-        updateTotalDisplay();
-    }
-
-    function updateTotalDisplay() {
-        document.getElementById('totalDisplay').innerText = totalAmount.toFixed(2) + " SAR";
-    }
+    window.deleteItem = (id) => {
+        if(confirm("Are you sure you want to delete this?")) {
+            remove(ref(db, `commitments/${id}`));
+        }
+    };
 </script>
 
 </body>
