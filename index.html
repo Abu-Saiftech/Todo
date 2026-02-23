@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Salary Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+        .container { max-width: 1000px; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .priority-3 { border-left: 5px solid #dc3545 !important; } 
+        .priority-2 { border-left: 5px solid #ffc107 !important; } 
+        .priority-1 { border-left: 5px solid #198754 !important; }
+        .total-box { background: #0d6efd; color: white; border-radius: 10px; padding: 15px; text-align: center; }
+        .btn-delete { color: #dc3545; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-delete:hover { color: #a71d2a; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="fw-bold text-dark">Salary Commitments 💸</h1>
+            <p class="text-secondary">Track and manage your upcoming payments</p>
+        </div>
+        <div class="col-md-4">
+            <div class="total-box shadow">
+                <small>Total Amount</small>
+                <div id="totalDisplay" class="h2 mb-0">0.00 SAR</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <input type="text" id="itemDesc" class="form-control" placeholder="Item Name">
+            </div>
+            <div class="col-md-2">
+                <input type="number" id="itemPrice" class="form-control" placeholder="Price">
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="itemNote" class="form-control" placeholder="Notes (Optional)">
+            </div>
+            <div class="col-md-2">
+                <select id="itemPriority" class="form-select">
+                    <option value="1">P1 (Low)</option>
+                    <option value="2">P2 (Mid)</option>
+                    <option value="3">P3 (High)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button onclick="addItem()" class="btn btn-dark w-100 fw-bold">+ Add Item</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-0 overflow-hidden shadow-sm">
+        <table class="table table-hover align-middle mb-0 text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th class="text-start ps-4">Description</th>
+                    <th>Price</th>
+                    <th>Notes</th>
+                    <th>Priority</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="itemsList"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let totalAmount = 0;
+
+    function addItem() {
+        const desc = document.getElementById('itemDesc').value;
+        const priceInput = document.getElementById('itemPrice');
+        const price = parseFloat(priceInput.value);
+        const note = document.getElementById('itemNote').value;
+        const priority = document.getElementById('itemPriority').value;
+
+        if(!desc || isNaN(price)) {
+            alert("Please provide name and price.");
+            return;
+        }
+
+        const table = document.getElementById('itemsList');
+        const row = table.insertRow();
+        row.className = "priority-" + priority;
+
+        row.innerHTML = `
+            <td class="text-start ps-4 fw-bold">${desc}</td>
+            <td class="fw-bold">${price.toFixed(2)} SAR</td>
+            <td class="text-muted small">${note || '-'}</td>
+            <td>
+                <span class="badge ${priority == 3 ? 'bg-danger' : (priority == 2 ? 'bg-warning text-dark' : 'bg-success')}">
+                    L${priority}
+                </span>
+            </td>
+            <td><span class="btn-delete" onclick="removeItem(this, ${price})">✕ Delete</span></td>
+        `;
+
+        // Update Total
+        totalAmount += price;
+        updateTotalDisplay();
+
+        // Clear Fields
+        document.getElementById('itemDesc').value = "";
+        priceInput.value = "";
+        document.getElementById('itemNote').value = "";
+    }
+
+    function removeItem(btn, amount) {
+        // Remove Row
+        const row = btn.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+
+        // Update Total
+        totalAmount -= amount;
+        if(totalAmount < 0) totalAmount = 0; // Safeguard
+        updateTotalDisplay();
+    }
+
+    function updateTotalDisplay() {
+        document.getElementById('totalDisplay').innerText = totalAmount.toFixed(2) + " SAR";
+    }
+</script>
+
+</body>
+</html>
